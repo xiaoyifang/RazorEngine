@@ -73,6 +73,21 @@ namespace RazorEngine.Templating
         }
 
         /// <summary>
+        /// Includes the template with the specified name.
+        /// </summary>
+        /// <param name="cacheName">The name of the template type in cache.</param>
+        /// <param name="model">The model or NULL if there is no model for the template.</param>
+        /// <returns>The template writer helper.</returns>
+        public virtual TemplateWriter RenderPage(string cacheName, object model = null)
+        {
+            var instance = TemplateService.Resolve(cacheName, model);
+            if (instance == null)
+                throw new ArgumentException("No template could be resolved with name '" + cacheName + "'");
+
+            return new TemplateWriter(tw => tw.Write(instance.Run(new ExecuteContext())));
+        }
+
+        /// <summary>
         /// Determines if the section with the specified name has been defined.
         /// </summary>
         /// <param name="name">The section name.</param>
@@ -161,6 +176,7 @@ namespace RazorEngine.Templating
 
             return new TemplateWriter(tw => action());
         }
+
 
         /// <summary>
         /// Renders the body of the template.
