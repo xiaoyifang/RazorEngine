@@ -1,4 +1,6 @@
-﻿namespace RazorEngine.Templating
+﻿using System.Web.WebPages;
+
+namespace RazorEngine.Templating
 {
     using System;
     using System.Collections.Concurrent;
@@ -20,6 +22,7 @@
     {
         #region Fields
         private readonly ITemplateServiceConfiguration _config;
+        private static IDictionary<string, Type> _mappings;
 
         private readonly ConcurrentDictionary<string, CachedTemplateItem> _cache = new ConcurrentDictionary<string, CachedTemplateItem>();
         private readonly ConcurrentBag<Assembly> _assemblies = new ConcurrentBag<Assembly>();
@@ -371,10 +374,16 @@
             CachedTemplateItem item;
             if (!(_cache.TryGetValue(cacheName, out item) && item.CachedHashCode == hashCode))
             {
-                Type type = CreateTemplateType(razorTemplate, (model == null) ? typeof(T) : model.GetType());
-                item = new CachedTemplateItem(hashCode, type);
-
-                _cache.AddOrUpdate(cacheName, item, (n, i) => item);
+                Type type;
+                
+                Lazy<CachedTemplateItem> lazy=new Lazy<CachedTemplateItem>(() =>
+                                                                               {
+                                                                                   if (!_mappings.TryGetValue(cacheName, out type))
+                                                                                       type = CreateTemplateType(razorTemplate, (model == null) ? typeof(T) : model.GetType());
+                                                                                   item = new CachedTemplateItem(hashCode, type);
+                                                                                   return item;
+                                                                               });
+                _cache.AddOrUpdate(cacheName, item, (n, i) => lazy.Value);
             }
 
             var instance = CreateTemplate(null, item.TemplateType, model);
@@ -439,7 +448,25 @@
             return Run(instance, viewBag);
         }
 
+        void ITemplateService.PreParseAssembly(Assembly assembly)
+        {
+            PreParseAssembly(assembly);
+        }
 
+        /// <summary>
+        /// Pres the parse assembly.
+        /// </summary>
+        /// <param name="assembly">The assembly.</param>
+        public static void PreParseAssembly(Assembly assembly)
+        {
+            _mappings = (from type in assembly.GetTypes()
+                         where typeof(WebPageRenderingBase).IsAssignableFrom(type)
+                         let pageVirtualPath = type.GetCustomAttributes(inherit: false).OfType<PageVirtualPathAttribute>().FirstOrDefault()
+                         where pageVirtualPath != null
+                         select new KeyValuePair<string, Type>(pageVirtualPath.VirtualPath, type)
+                         ).ToDictionary(t => t.Key, t => t.Value, StringComparer.OrdinalIgnoreCase);
+
+        }
         /// <summary>
         /// Parses and returns the result of the specified string template.
         /// </summary>
