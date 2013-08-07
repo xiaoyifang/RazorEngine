@@ -1,4 +1,6 @@
-﻿namespace RazorEngine.Templating
+﻿using System.Reflection;
+
+namespace RazorEngine.Templating
 {
     using System;
     using System.Collections.Generic;
@@ -136,6 +138,13 @@
         /// <returns>The string result of the template.</returns>
         string Parse(string razorTemplate, object model, DynamicViewBag viewBag, string cacheName);
 
+
+        /// <summary>
+        /// Pres the parse assembly.
+        /// </summary>
+        /// <param name="assembly">The assembly.</param>
+        void PreParseAssembly(Assembly assembly);
+        
         /// <summary>
         /// Parses and returns the result of the specified string template.
         /// </summary>

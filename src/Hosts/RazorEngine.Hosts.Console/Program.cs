@@ -1,12 +1,11 @@
 ﻿using System.Web.Razor.Parser.SyntaxTree;
+using RazorEngine.Compilation;
+using RazorEngine.Templating;
 
 namespace RazorEngine.Hosts.Console
 {
     using System;
     using System.Linq;
-
-    using Compilation;
-    using Templating;
 
     class Program
     {

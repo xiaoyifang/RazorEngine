@@ -1,4 +1,7 @@
-﻿namespace RazorEngine
+﻿using System.Reflection;
+using System.Web.WebPages;
+
+namespace RazorEngine
 {
     using System;
     using System.Collections.Generic;
@@ -15,6 +18,7 @@
         #region Fields
         private static ITemplateService _service = new TemplateService();
         private static readonly object _sync = new object();
+
         #endregion
 
         #region Properties
@@ -226,6 +230,16 @@
         public static string Parse(string razorTemplate)
         {
             return TemplateService.Parse(razorTemplate, null, null, null);
+        }
+
+        /// <summary>
+        /// Pres the parse assembly.
+        /// </summary>
+        /// <param name="assembly">The assembly.</param>
+        public static void PreParseAssembly(Assembly assembly)
+        {
+            TemplateService.PreParseAssembly(assembly);
+            
         }
 
         /// <summary>
