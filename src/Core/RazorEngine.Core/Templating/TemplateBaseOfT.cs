@@ -62,10 +62,6 @@
         {
             return base.Include(cacheName, model ?? Model);
         }
-        public override TemplateWriter RenderPage(string cacheName, object model = null)
-        {
-            return base.Include(cacheName, model ?? Model);
-        }
 
         #region Methods
         /// <summary>
