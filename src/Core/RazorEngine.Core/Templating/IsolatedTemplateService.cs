@@ -372,10 +372,6 @@
            return _proxy.Parse(razorTemplate, model, viewBag, cacheName);
         }
 
-        public void PreParseAssembly(Assembly assembly)
-        {
-        }
-
         /// <summary>
         /// Parses and returns the result of the specified string template.
         /// </summary>
